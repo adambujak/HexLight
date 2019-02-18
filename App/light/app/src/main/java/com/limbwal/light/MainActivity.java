@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.CountDownTimer;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -46,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     int bufferColor = Color.RED;                                                          // color buffer
     int color = 3;                                                                        // another color buffer
     TextView textView;
-    int brightness = 255;
     SeekBar brightnessBar;
 
     @Override
@@ -56,8 +58,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //set status bar to same color as rest of app
+        Window window = this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.colorPrimaryDark));
+
         textView = findViewById(R.id.textView);
         brightnessBar = findViewById(R.id.brightnessBar);
+        brightnessBar.getProgressDrawable().setColorFilter(Color.rgb(0, 192, 255), PorterDuff.Mode.SRC_IN);
+        brightnessBar.getThumb().setColorFilter(Color.rgb(0, 192, 255), PorterDuff.Mode.SRC_IN);
         brightnessBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -292,5 +302,8 @@ public class MainActivity extends AppCompatActivity {
                 .build()
                 .show();
     }
+
+
+
 
 }

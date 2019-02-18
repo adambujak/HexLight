@@ -3,7 +3,8 @@
 #include <SPI.h>
 
 #define ID_STRING_LENGTH 4
-#define START_OF_COLOR_HEX 10
+#define START_OF_COLOR_HEX 3
+#define START_OF_BRIGHTNESS_HEX 10
 #define LENGTH_OF_COLOR_HEX 6
 #define NUM_LEDS 7  //change to 7
 #define DATA_PIN_1 15 //15 for esp 13
@@ -21,8 +22,7 @@ const char* password = "Connection";
 
 boolean NEW_CLIENT = false;
 boolean CLIENT_AVAILABLE = false;
-boolean READ_FROM_CLIENT = false;
-
+boolean ANIMATION_IN_PROGRESS = false;
 
 WiFiServer server(80);
 WiFiClient client;
@@ -57,7 +57,6 @@ void loop() {
       READ_FROM_CLIENT = false;
     }
   }
- 
 }
 
 void setupWiFi() {
@@ -96,17 +95,18 @@ void updateLEDs() {
   FastLED.show();
 }
 void setLEDColor(byte led, byte red, byte green, byte blue) {
-  leds[led].r = red;
+  /*leds[led].r = red;
   leds[led].g = green;
   leds[led].b = blue;
-  updateLEDs();
+  updateLEDs();*/ //TODO: REMOVE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 void parseRequest(String request) {
-  Serial.print("adsfasaf :   ");
-  Serial.println(request.indexOf("ID"));
   if (request.indexOf("ID") != -1) {
-   // parseRequestForColors(request);
+     parseRequestForColors(request);
+  }
+  else if (request.indexOf("BR") != -1) {
+     parseRequestForBrightness(request);
   }
   //add brightness and custom functions here
 }
@@ -130,7 +130,15 @@ void parseRequestForColors(String request) {
     setLEDColor(cnt, RGBColors[0], RGBColors[1], RGBColors[2]);
   }
 }
-
+void parseRequestForBrightness(String request) {
+  byte brightness;
+  int i;
+  char strbuf[2]={'B','R'};  // 4 = length of "ID=i"   
+  i = request.indexOf(strbuf)+START_OF_BRIGHTNESS_HEX;
+  brightness = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
+  setBrightnessLevel(brightness);
+  
+}
 byte getIntFromHexChar(char h) {
   switch (h) {
     case '0': 
