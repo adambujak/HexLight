@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     RequestQueue queue;                                                                   // http request queue
     boolean stillHeld = false;                                                            // button hold flag
     boolean selectModeEnabled = false;                                                    // hexlight selection mode flag - for selecting multiple hexagons
-    int bufferColor = Color.RED;                                                          // TODO: add comment here too
-    int color = 3;                                                                        // TODO: add comment to this to specify what it is
+    int bufferColor = Color.RED;                                                          // color buffer
+    int color = 3;                                                                        // another color buffer
     TextView textView;
 
     @Override
@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView = findViewById(R.id.textView);
-        textView.setText("Res");
         queue = Volley.newRequestQueue(this);                                     // initialize request queue
         multipleColorChangeButton = findViewById(R.id.setColor);
         multipleColorChangeButton.setVisibility(View.INVISIBLE);

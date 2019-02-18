@@ -2,7 +2,10 @@
 #include <FastLED.h>
 #include <SPI.h>
 
-#define NUM_LEDS 7
+#define ID_STRING_LENGTH 4
+#define START_OF_COLOR_HEX 10
+#define LENGTH_OF_COLOR_HEX 6
+#define NUM_LEDS 7  //change to 7
 #define DATA_PIN_1 15 //15 for esp 13
 #define DATA_PIN_2 5
 #define DATA_PIN_3 4
@@ -11,130 +14,159 @@
 #define DATA_PIN_6 12
 #define DATA_PIN_7 13
 #define CHIPSET WS2811
-CRGB leds[NUM_LEDS];
+CRGB leds[NUM_LEDS]; 
 
-const char* ssid = "StroudHome";
-const char* password = "Cloud2017"; 
-const int pin[] = {5};   
+const char* ssid = "TP-LINK_D442";
+const char* password = "Connection";
+
+boolean NEW_CLIENT = false;
+boolean CLIENT_AVAILABLE = false;
+boolean READ_FROM_CLIENT = false;
+
+
 WiFiServer server(80);
-void setup() {
-  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds, NUM_LEDS); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds, NUM_LEDS); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds, NUM_LEDS); 
-  FastLED.setCorrection(0xFFB0F0);
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Red;
-  }
+WiFiClient client;
 
-  
-  FastLED.show();
-  FastLED.setBrightness(255);
+void setup() {
   Serial.begin(115200);
-  delay(10);
+  setupWiFi();
+  addLEDs();
+  setBrightnessLevel(255);
+  updateLEDs();
+  NEW_CLIENT = true;
+}
  
-  // Connect to WiFi network
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+void loop() {
+  // Check if a client has connected
+  if (NEW_CLIENT) {
+    client = server.available();
+     if (client) {
+        NEW_CLIENT = false;
+        READ_FROM_CLIENT = true;
+     }
+  }
+  else if (READ_FROM_CLIENT) {
+    if (client.available()) {
+      String request = client.readStringUntil('\r');
+      Serial.print(request);
+      Serial.println("   request");
+      client.flush();
+      sendOKMessage(client);
+      parseRequest(request);
+      NEW_CLIENT = true;
+      READ_FROM_CLIENT = false;
+    }
+  }
  
+}
+void parseRequest(request) {
+  if (request.indexOf("ID") != -1) {
+    parseRequestForColors(request);
+  }
+  //add brightness and custom functions here
+}
+void setupWiFi() {
   WiFi.begin(ssid, password);
- 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("");
   Serial.println("WiFi connected");
- 
-  // Start the server
-  server.begin();
-  Serial.println("Server started");
-  IPAddress ip(192, 168, 1, 21); // where xx is the desired IP Address this is to make it static so the android app doesn't have to be configured each 
-  IPAddress gateway(192, 168, 1, 1);
-  IPAddress subnet(255, 255, 255, 0); 
+  IPAddress ip(192,168,1,21);   
+  IPAddress gateway(192,168,1,254);   
+  IPAddress subnet(255,255,255,0);   
   WiFi.config(ip, gateway, subnet);
-  Serial.print("Use this URL to connect: ");
-  Serial.print("http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
+  server.begin();
 }
-void setColourRgb(unsigned int red, unsigned int green, unsigned int blue, int led) {
+void addLEDs() { //remove comments
+  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
+  /*FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds, NUM_LEDS); 
+  FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds, NUM_LEDS); 
+  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds, NUM_LEDS); 
+  FastLED.setCorrection(0xFFB0F0);*/
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::Red;
+  }
+}
+void sendOKMessage(WiFiClient client) {
+  client.print("HTTP/1.1 200 OK\r\n\nok");
+}
+void setBrightnessLevel(byte level) {
+  FastLED.setBrightness(level);
+}
+void updateLEDs() {
+  FastLED.show();
+}
+void setLEDColor(byte led, byte red, byte green, byte blue) {
   leds[led].r = red;
   leds[led].g = green;
   leds[led].b = blue;
-  FastLED.show();
- }
-
-int parseRequestForColors (String request, String ledName, int RGBints[]) {
-  String colors = "";
-    for (int i = request.indexOf(ledName)+5; i < request.length(); i++) {
-      char character = request.charAt(i);
-      if (character == '&'|| character == ' ') {
-        break;
-      }
-      colors += character;
-    }
-    String RGBcolors[3];
-    String strbuffer = "";
-    int cnt = 0;
-    for (int i = 0; i < colors.length(); i++) {
- 
-      char character = colors.charAt(i);
-      if (character == '&' || character == ' ') {
-        break;
-      }
-      if (character == ':') {
-        RGBcolors[cnt] = strbuffer;
-        cnt++;
-        strbuffer = "";
-        continue;
-      }
-      strbuffer += character;
-    }
-    RGBcolors[2]=strbuffer;
-   
-    for (int i = 0; i < 3; i++) {
-      RGBints[i] = RGBcolors[i].toInt();
-    }
-  
+  updateLEDs();
 }
-void loop() {
-  // Check if a client has connected
-  WiFiClient client = server.available();
-  if (!client) {
-    return;
-  }
- 
-  // Wait until the client sends some data
-  Serial.println("new client");
-  while(!client.available()){
-    delay(1);
-  }
- 
-  // Read the first line of the request
-  String request = client.readStringUntil('\r');
-  Serial.print(request);
-  Serial.println("   request");
-  client.flush();
- 
-  // Match the request
-  client.println("ok");
-  
-  if (request.indexOf("ID=") != -1)  {
-    int RGBints[3];
-    parseRequestForColors(request, "LED1=", RGBints);
-    setColourRgb(RGBints[0], RGBints[1], RGBints[2], 0);
-  } 
-   
-  delay(1);
-  Serial.println("Client disonnected");
-  Serial.println("");
- 
-}
- 
 
+void parseRequest(request) {
+  if (request.indexOf("ID") != -1) {
+    parseRequestForColors(request);
+  }
+  //add brightness and custom functions here
+}
+
+void parseRequestForColors(String request) {
+  byte COLOR_COUNT;
+  byte RGBColors[3];
+  int startIndex;
+  for (byte cnt = 0; cnt < NUM_LEDS; cnt ++) {
+    
+    char strbuf[ID_STRING_LENGTH];  // 4 = length of "ID=i"
+    sprintf(strbuf,"ID=%d",cnt);   
+    
+    COLOR_COUNT = 0;
+    startIndex = request.indexOf(strbuf)+START_OF_COLOR_HEX;
+    
+    for (int i = startIndex; i < startIndex + LENGTH_OF_COLOR_HEX; i+=2) {
+      RGBColors[COLOR_COUNT] = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
+      COLOR_COUNT++;
+    }
+    setLEDColor(cnt, RGBColors[0], RGBColors[1], RGBColors[2]);
+  }
+}
+
+byte getIntFromHexChar(char h) {
+  switch (h) {
+    case '0': 
+      return 0;
+    case '1': 
+      return 1;
+    case '2': 
+        return 2;
+    case '3': 
+        return 3;
+    case '4': 
+        return 4;
+    case '5': 
+        return 5;
+    case '6': 
+        return 6;
+    case '7': 
+        return 7;
+    case '8': 
+        return 8;
+    case '9': 
+        return 9;
+    case 'A': 
+        return 10;
+    case 'B': 
+        return 11;
+    case 'C': 
+        return 12;
+    case 'D': 
+        return 13;
+    case 'E': 
+        return 14;
+    case 'F': 
+        return 15;
+    }
+} 
