@@ -55,7 +55,7 @@ public class Hexagon extends View {
         int y = (int) event.getY();
         return inHexagon(x, y);
     }
-    public boolean inHexagon(int x, int y) {
+    public boolean inHexagon(int x, int y) {  //returns if touch was inside hexagon or not.
         float triangleHeight = (float) (Math.sqrt(3) * radius / 2);
         float centerX = width/2;
         float centerY = height/2;

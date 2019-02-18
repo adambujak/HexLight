@@ -22,7 +22,7 @@
         android:layout_alignRight="@id/centerBuffer"
         />
     <com.limbwal.light.Hexagon
-        android:id="@+id/hexView"
+        android:id="@+id/hexView0"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
         android:layout_marginLeft="@dimen/hexDimenQuarter"
@@ -34,22 +34,22 @@
         android:layout_height="@dimen/hexDimen"
         android:layout_alignRight="@id/hexView2"
         android:layout_marginTop="@dimen/hexDimenTriangleHeight"
-        android:layout_alignTop="@id/hexView"/>
+        android:layout_alignTop="@id/hexView0"/>
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView2"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
         android:layout_marginRight="@dimen/hexDimenThreeQuarter"
-        android:layout_alignRight="@id/hexView"
+        android:layout_alignRight="@id/hexView0"
         android:layout_marginBottom="@dimen/hexDimenTriangleHeight"
-        android:layout_alignBottom="@id/hexView"/>
+        android:layout_alignBottom="@id/hexView0"/>
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView3"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignLeft="@id/hexView"
+        android:layout_alignLeft="@id/hexView0"
         android:layout_marginBottom="@dimen/hexDimenTriangleHeight2x"
-        android:layout_alignBottom="@id/hexView"/>
+        android:layout_alignBottom="@id/hexView0"/>
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView4"
         android:layout_width="@dimen/hexDimen"
@@ -70,7 +70,7 @@
         android:layout_height="@dimen/hexDimen"
         android:layout_alignLeft="@id/hexView5"
         android:layout_marginLeft="@dimen/hexDimenThreeQuarter"
-        android:layout_alignTop="@id/hexView"/>
+        android:layout_alignTop="@id/hexView0"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

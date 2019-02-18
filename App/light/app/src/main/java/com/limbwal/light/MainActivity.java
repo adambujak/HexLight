@@ -32,30 +32,33 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
-    Hexagon[] hexagons = new Hexagon[7];
+    int NUM_HEXAGONS = 7;
+    Hexagon[] hexagons = new Hexagon[NUM_HEXAGONS];
     ArrayList<Hexagon> selectedHexagons = new ArrayList<Hexagon>();
     ArrayList<Integer> selectedHexagonColors = new ArrayList<Integer>();
-    Button multipleColorChangeButton;
-    boolean stillHeld = false;
-    RequestQueue queue;
-    boolean selectModeEnabled = false;
-    int bufferColor = Color.RED;
-    int color = 3 ;
+    Button multipleColorChangeButton;                                                     // button that comes up when selecting multiple hexagons
+    RequestQueue queue;                                                                   // http request queue
+    boolean stillHeld = false;                                                            // button hold flag
+    boolean selectModeEnabled = false;                                                    // hexlight selection mode flag - for selecting multiple hexagons
+    int bufferColor = Color.RED;                                                          // TODO: add comment here too
+    int color = 3;                                                                        // TODO: add comment to this to specify what it is
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        queue = Volley.newRequestQueue(this);
+
+        queue = Volley.newRequestQueue(this);                                     // initialize request queue
         multipleColorChangeButton = findViewById(R.id.setColor);
         multipleColorChangeButton.setVisibility(View.INVISIBLE);
-        hexagons[0] = findViewById(R.id.hexView);
-        hexagons[1] = findViewById(R.id.hexView1);
-        hexagons[2] = findViewById(R.id.hexView2);
-        hexagons[3] = findViewById(R.id.hexView3);
-        hexagons[4] = findViewById(R.id.hexView4);
-        hexagons[5] = findViewById(R.id.hexView5);
-        hexagons[6] = findViewById(R.id.hexView6);
+
+        for(int i = 0; i < NUM_HEXAGONS; i++) { // initialize hexagons
+            String buttonID = "hexView" + i;
+            int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
+            hexagons[i] = findViewById(resID);
+            hexagons[i].id = i;
+        }
         for (int i = 0; i < hexagons.length; i++) {
             hexagons[i].id = i;
             final int foo = i;
@@ -67,79 +70,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
         multipleColorChangeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final Context context = MainActivity.this;
-                selectModeEnabled = false;
+                selectModeEnabled = false;                // deactivate select mode
                 stillHeld = false;
-                ColorPickerDialogBuilder
-                        .with(context)
-                        .setTitle("Pick a Color - Hold ok for more options")
-                        .initialColor(Color.RED)
-                        .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                        .density(12)
-                        .setOnColorChangedListener(new OnColorChangedListener() {
-                            @Override
-                            public void onColorChanged(int selectedColor) {
-                            }
-                        })
-                        .setOnColorSelectedListener(new OnColorSelectedListener() {
-                            @Override
-                            public void onColorSelected(int selectedColor) {
-                                Log.d("a", "onColorSelected: 0x" + Integer.toHexString(selectedColor));
-                            }
-                        })
-                        .setPositiveButton("ok", new ColorPickerClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
-                                for (int i = 0; i < selectedHexagons.size(); i++){
-                                    selectedHexagons.get(i).setMaskColor(selectedColor);
-                                }
-                                selectedHexagons.clear();
-                                selectedHexagonColors.clear();
-                                multipleColorChangeButton.setVisibility(View.INVISIBLE);
-                                if (allColors != null) {
-                                    StringBuilder sb = null;
-
-                                    for (Integer color : allColors) {
-                                        if (color == null)
-                                            continue;
-                                        if (sb == null)
-                                            sb = new StringBuilder("Color List:");
-                                        sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
-                                    }
-
-
-
-                                }
-                            }
-                        })
-                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                for (int i = 0; i < selectedHexagons.size(); i++) {
-                                        selectedHexagons.get(i).setMaskColor(selectedHexagonColors.get(i));
-                                }
-                                selectedHexagons.clear();
-                                selectedHexagonColors.clear();
-
-                            }
-                        })
-                        .showColorEdit(true)
-                        .setColorEditTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.holo_blue_bright))
-                        .noSliders()
-                        .build()
-                        .show();
+                createMultipleColorSelector(context);
             }
         });
     }
+
     void touchHandler(MotionEvent event, final int buttonNumber) {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                stillHeld = true;
-
+                stillHeld = true;           // turn on held flag
                 new CountDownTimer(350, 500) {
 
                     public void onTick(long millisUntilFinished) {
@@ -165,61 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     if (hexagons[buttonNumber].onTouchEvent(event)) {
                         final Context context = MainActivity.this;
 
-                        ColorPickerDialogBuilder
-                                .with(context)
-                                .setTitle("Pick a Color - Hold ok for more options")
-                                .initialColor(Color.RED)
-                                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                                .density(12)
-                                .setOnColorChangedListener(new OnColorChangedListener() {
-                                    @Override
-                                    public void onColorChanged(int selectedColor) {
-                                        color = selectedColor;
-                                    }
-                                })
-                                .setOnColorSelectedListener(new OnColorSelectedListener() {
-                                    @Override
-                                    public void onColorSelected(int selectedColor) {
-                                        Log.d("a", "onColorSelected: 0x" + Integer.toHexString(selectedColor));
-
-
-
-                                    }
-                                })
-                                .setPositiveButton("ok", new ColorPickerClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
-                                        changeBackgroundColor(selectedColor, buttonNumber);
-                                        if (allColors != null) {
-                                            StringBuilder sb = null;
-
-                                            for (Integer color : allColors) {
-                                                if (color == null)
-                                                    continue;
-                                                if (sb == null)
-                                                    sb = new StringBuilder("Color List:");
-                                                sb.append("\r\n#" + Integer.toHexString(color).toUpperCase());
-                                            }
-
-                                            String hexColor = String.format("%06X", (0xFFFFFF & selectedColor));
-                                            System.out.println("hex color" + hexColor);
-                                            int [] rgb = getRGB(hexColor);
-                                            setColor(rgb);
-
-                                        }
-                                    }
-                                })
-                                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                })
-                                .showColorEdit(true)
-                                .setColorEditTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.holo_blue_bright))
-                                .noSliders()
-                                .build()
-                                .show();
-
+                        createSingleColorSelector(context, buttonNumber);
                     }
                 }
                 else {
@@ -248,28 +141,20 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-    public int[] getRGB(String rgb){
-        int[] ret = new int[3];
-        System.out.println(rgb.length());
-        for(int i=0; i<3; i++){
-            ret[i] = hexToInt(rgb.charAt(i*2), rgb.charAt(i*2+1));
-        }
-        return ret;
-    }
 
-    public int hexToInt(char a, char b){
-        int x = a < 65 ? a-48 : a-55;
-        int y = b < 65 ? b-48 : b-55;
-        return x*16+y;
-    }
     private void changeBackgroundColor(int selectedColor, int i) {
         bufferColor = selectedColor;
         hexagons[i].setMaskColor(selectedColor);
     }
-    public void setColor(int[] colors) {
+    public void setColors() {
 
-        String url ="http://192.168.1.21/COLOR="+colors[0]+":"+colors[1]+":"+colors[2];
-        System.out.print(url);
+        System.out.println("Came to set Colors");
+        String url ="http://192.168.1.21/";
+        for (int i = 0; i < hexagons.length; i++) {
+            url += "ID=" + hexagons[i].id + "COLOR=" + hexagons[i].getMaskColor();
+            if (i != hexagons.length) url += "+";
+
+        }
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -286,6 +171,94 @@ public class MainActivity extends AppCompatActivity {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+    void createMultipleColorSelector(Context context) {
+        ColorPickerDialogBuilder
+                .with(context)
+                .setTitle("Pick a Color - Hold ok for more options")
+                .initialColor(Color.RED)
+                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                .density(12)
+                .setOnColorChangedListener(new OnColorChangedListener() {
+                    @Override
+                    public void onColorChanged(int selectedColor) {
+                    }
+                })
+                .setOnColorSelectedListener(new OnColorSelectedListener() {
+                    @Override
+                    public void onColorSelected(int selectedColor) {
+
+                    }
+                })
+                .setPositiveButton("ok", new ColorPickerClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                        for (int i = 0; i < selectedHexagons.size(); i++){
+                            selectedHexagons.get(i).setMaskColor(selectedColor);
+                        }
+                        selectedHexagons.clear();
+                        selectedHexagonColors.clear();
+                        multipleColorChangeButton.setVisibility(View.INVISIBLE);
+                        setColors();
+                    }
+                })
+                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        for (int i = 0; i < selectedHexagons.size(); i++) {
+                            selectedHexagons.get(i).setMaskColor(selectedHexagonColors.get(i));
+                        }
+                        selectedHexagons.clear();
+                        selectedHexagonColors.clear();
+
+                    }
+                })
+                .showColorEdit(true)
+                .setColorEditTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.holo_blue_bright))
+                .noSliders()
+                .build()
+                .show();
+    }
+    void createSingleColorSelector(Context context, final int buttonNumber) {
+        ColorPickerDialogBuilder
+                .with(context)
+                .setTitle("Pick a Color - Hold ok for more options")
+                .initialColor(Color.RED)
+                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                .density(12)
+                .setOnColorChangedListener(new OnColorChangedListener() {
+                    @Override
+                    public void onColorChanged(int selectedColor) {
+                        color = selectedColor;
+                    }
+                })
+                .setOnColorSelectedListener(new OnColorSelectedListener() {
+                    @Override
+                    public void onColorSelected(int selectedColor) {
+                        Log.d("a", "onColorSelected: 0x" + Integer.toHexString(selectedColor));
+
+
+                    }
+                })
+                .setPositiveButton("ok", new ColorPickerClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                        changeBackgroundColor(selectedColor, buttonNumber);
+                        if (allColors != null) {
+                            setColors();
+                        }
+                    }
+                })
+                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .showColorEdit(true)
+                .setColorEditTextColor(ContextCompat.getColor(MainActivity.this, android.R.color.holo_blue_bright))
+                .noSliders()
+                .build()
+                .show();
     }
 }
 
