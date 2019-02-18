@@ -2,6 +2,7 @@ package com.limbwal.light;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -44,14 +46,31 @@ public class MainActivity extends AppCompatActivity {
     int bufferColor = Color.RED;                                                          // color buffer
     int color = 3;                                                                        // another color buffer
     TextView textView;
+    int brightness = 255;
+    SeekBar brightnessBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        this.setRequestedOrientation(
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         textView = findViewById(R.id.textView);
+        brightnessBar = findViewById(R.id.brightnessBar);
+        brightnessBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                setBrightness(getBrightnessHexString((int)(((float)seekBar.getProgress()/(float)seekBar.getMax())*255))); //current position/max position *255
+            }
+        });
+
         queue = Volley.newRequestQueue(this);                                     // initialize request queue
         multipleColorChangeButton = findViewById(R.id.setColor);
         multipleColorChangeButton.setVisibility(View.INVISIBLE);
@@ -61,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
             hexagons[i] = findViewById(resID);
             hexagons[i].id = i;
-            changeBackgroundColor(Color.RED, i);
+            changeBackgroundColor(Color.rgb(0, 192, 255), i); //00c0ff - aqua
         }
         for (int i = 0; i < hexagons.length; i++) {
             hexagons[i].id = i;
@@ -74,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
+        setColors();
         multipleColorChangeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     void touchHandler(MotionEvent event, final int buttonNumber) {
 
@@ -150,25 +170,30 @@ public class MainActivity extends AppCompatActivity {
         bufferColor = selectedColor;
         hexagons[i].setMaskColor(selectedColor);
     }
-    public String getHexString(int color) {
+    public String getColorHexString(int color) {
        return String.format("%06X", (long) (color & 0xFFFFFFL));
     }
+    public String getBrightnessHexString(int brightness) {
+        return String.format("%02X", brightness & 0xFFL);
+    }
+    public void setBrightness(String brightness) {  // @params brightness in hexcode in string - full brightness = 255 = FF
+       sendStringRequest("http://192.168.1.21/BR="+brightness);
+    }
     public void setColors() {
-
-        System.out.println("Came to set Colors");
         String url ="http://192.168.1.21/";
         for (int i = 0; i < hexagons.length; i++) {
-            url += "ID=" + hexagons[i].id + "COLOR=" + getHexString(hexagons[i].getMaskColor());
-            System.out.println("color: " + getHexString(hexagons[i].getMaskColor()));
+            url += "ID=" + hexagons[i].id + "COLOR=" + getColorHexString(hexagons[i].getMaskColor());
             if (i != hexagons.length) url += "+";
-
         }
+        sendStringRequest(url);
+    }
+    public void sendStringRequest(String url) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                       if (response.equals("ok")) textView.setText("");
-                       else textView.setText("Something went wrong, please retry - "+response);
+                        if (response.equals("ok")) textView.setText("");
+                        else textView.setText("Something went wrong, please retry - "+response);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -176,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("Something went wrong, please retry - "+error);
             }
         });
-
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
@@ -268,5 +292,5 @@ public class MainActivity extends AppCompatActivity {
                 .build()
                 .show();
     }
-}
 
+}

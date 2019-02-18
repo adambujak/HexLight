@@ -59,12 +59,7 @@ void loop() {
   }
  
 }
-void parseRequest(request) {
-  if (request.indexOf("ID") != -1) {
-    parseRequestForColors(request);
-  }
-  //add brightness and custom functions here
-}
+
 void setupWiFi() {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -107,9 +102,11 @@ void setLEDColor(byte led, byte red, byte green, byte blue) {
   updateLEDs();
 }
 
-void parseRequest(request) {
+void parseRequest(String request) {
+  Serial.print("adsfasaf :   ");
+  Serial.println(request.indexOf("ID"));
   if (request.indexOf("ID") != -1) {
-    parseRequestForColors(request);
+   // parseRequestForColors(request);
   }
   //add brightness and custom functions here
 }
