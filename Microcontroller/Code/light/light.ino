@@ -6,8 +6,9 @@
 #define START_OF_COLOR_HEX 3
 #define START_OF_BRIGHTNESS_HEX 10
 #define LENGTH_OF_COLOR_HEX 6
+
 #define NUM_LEDS 7  //change to 7
-#define DATA_PIN_1 15 //15 for esp 13
+#define DATA_PIN_1 2 //15 for esp 13
 #define DATA_PIN_2 5
 #define DATA_PIN_3 4
 #define DATA_PIN_4 0
@@ -17,11 +18,11 @@
 #define CHIPSET WS2811
 CRGB leds[NUM_LEDS]; 
 
-const char* ssid = "TP-LINK_D442";
-const char* password = "Connection";
+const char* ssid = "StroudHome";
+const char* password = "Cloud2017";
 
 boolean NEW_CLIENT = false;
-boolean CLIENT_AVAILABLE = false;
+boolean READ_FROM_CLIENT = false;
 boolean ANIMATION_IN_PROGRESS = false;
 
 WiFiServer server(80);
@@ -65,22 +66,24 @@ void setupWiFi() {
     delay(500);
     Serial.print(".");
   }
+  
   Serial.println("WiFi connected");
-  IPAddress ip(192,168,1,21);   
-  IPAddress gateway(192,168,1,254);   
-  IPAddress subnet(255,255,255,0);   
-  WiFi.config(ip, gateway, subnet);
+  //IPAddress ip(192,168,1,9);   
+  //IPAddress gateway(192,168,1,1);   
+  //IPAddress subnet(255,255,255,0);   
+  //WiFi.config(ip, gateway, subnet);
   server.begin();
+  Serial.print(WiFi.localIP());
 }
 void addLEDs() { //remove comments
-  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
-  /*FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds, NUM_LEDS); 
-  FastLED.setCorrection(0xFFB0F0);*/
+  FastLED.setCorrection(0xFFB0F0);
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Red;
   }
@@ -95,10 +98,10 @@ void updateLEDs() {
   FastLED.show();
 }
 void setLEDColor(byte led, byte red, byte green, byte blue) {
-  /*leds[led].r = red;
+  leds[led].r = red;
   leds[led].g = green;
   leds[led].b = blue;
-  updateLEDs();*/ //TODO: REMOVE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  updateLEDs(); //TODO: REMOVE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 void parseRequest(String request) {
@@ -137,6 +140,7 @@ void parseRequestForBrightness(String request) {
   i = request.indexOf(strbuf)+START_OF_BRIGHTNESS_HEX;
   brightness = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
   setBrightnessLevel(brightness);
+  updateLEDs();
   
 }
 byte getIntFromHexChar(char h) {
