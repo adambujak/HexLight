@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     boolean selectModeEnabled = false;                                                    // hexlight selection mode flag - for selecting multiple hexagons
     int bufferColor = Color.RED;                                                          // TODO: add comment here too
     int color = 3;                                                                        // TODO: add comment to this to specify what it is
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        textView = findViewById(R.id.textView);
+        textView.setText("Res");
         queue = Volley.newRequestQueue(this);                                     // initialize request queue
         multipleColorChangeButton = findViewById(R.id.setColor);
         multipleColorChangeButton.setVisibility(View.INVISIBLE);
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
             hexagons[i] = findViewById(resID);
             hexagons[i].id = i;
+            changeBackgroundColor(Color.RED, i);
         }
         for (int i = 0; i < hexagons.length; i++) {
             hexagons[i].id = i;
@@ -146,12 +151,16 @@ public class MainActivity extends AppCompatActivity {
         bufferColor = selectedColor;
         hexagons[i].setMaskColor(selectedColor);
     }
+    public String getHexString(int color) {
+       return String.format("%06X", (long) (color & 0xFFFFFFL));
+    }
     public void setColors() {
 
         System.out.println("Came to set Colors");
         String url ="http://192.168.1.21/";
         for (int i = 0; i < hexagons.length; i++) {
-            url += "ID=" + hexagons[i].id + "COLOR=" + hexagons[i].getMaskColor();
+            url += "ID=" + hexagons[i].id + "COLOR=" + getHexString(hexagons[i].getMaskColor());
+            System.out.println("color: " + getHexString(hexagons[i].getMaskColor()));
             if (i != hexagons.length) url += "+";
 
         }
@@ -159,13 +168,13 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-
+                       if (response.equals("ok")) textView.setText("");
+                       else textView.setText("Something went wrong, please retry - "+response);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                textView.setText("Something went wrong, please retry - "+error);
             }
         });
 

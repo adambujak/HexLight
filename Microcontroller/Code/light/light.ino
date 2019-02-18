@@ -3,7 +3,7 @@
 #include <SPI.h>
 
 #define NUM_LEDS 7
-#define DATA_PIN_1 16
+#define DATA_PIN_1 15 //15 for esp 13
 #define DATA_PIN_2 5
 #define DATA_PIN_3 4
 #define DATA_PIN_4 0
@@ -14,11 +14,11 @@
 CRGB leds[NUM_LEDS];
 
 const char* ssid = "StroudHome";
-const char* password = "Cloud2017";
-const int pin[] = {16, 5, 4, 0, 14, 12, 13};   
+const char* password = "Cloud2017"; 
+const int pin[] = {5};   
 WiFiServer server(80);
 void setup() {
-  FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
+  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
@@ -125,7 +125,7 @@ void loop() {
   // Match the request
   client.println("ok");
   
-  if (request.indexOf("LED1=") != -1)  {
+  if (request.indexOf("ID=") != -1)  {
     int RGBints[3];
     parseRequestForColors(request, "LED1=", RGBints);
     setColourRgb(RGBints[0], RGBints[1], RGBints[2], 0);
