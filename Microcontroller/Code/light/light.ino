@@ -3,11 +3,10 @@
 #include <SPI.h>
 
 #define ID_STRING_LENGTH 4
-#define START_OF_COLOR_HEX 3
-#define START_OF_BRIGHTNESS_HEX 10
+#define START_OF_COLOR_HEX 10
+#define START_OF_BRIGHTNESS_HEX 3
 #define LENGTH_OF_COLOR_HEX 6
-
-#define NUM_LEDS 7  //change to 7
+#define NUM_LEDS 6  //change to 7
 #define DATA_PIN_1 2 //15 for esp 13
 #define DATA_PIN_2 5
 #define DATA_PIN_3 4
@@ -33,6 +32,8 @@ void setup() {
   setupWiFi();
   addLEDs();
   setBrightnessLevel(255);
+  updateLEDs();
+  test();
   updateLEDs();
   NEW_CLIENT = true;
 }
@@ -61,22 +62,22 @@ void loop() {
 }
 
 void setupWiFi() {
+  WiFi.hostname("HexLight");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  
   Serial.println("WiFi connected");
-  //IPAddress ip(192,168,1,9);   
-  //IPAddress gateway(192,168,1,1);   
-  //IPAddress subnet(255,255,255,0);   
-  //WiFi.config(ip, gateway, subnet);
+  /*IPAddress ip(192,168,1,22);   
+  IPAddress gateway(192,168,1,1);   
+  IPAddress subnet(255,255,255,0);   
+  WiFi.config(ip, gateway, subnet);*/
+  Serial.println(WiFi.localIP());
   server.begin();
-  Serial.print(WiFi.localIP());
 }
 void addLEDs() { //remove comments
-  FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
+  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
@@ -88,11 +89,19 @@ void addLEDs() { //remove comments
     leds[i] = CRGB::Red;
   }
 }
+void test() { //every led is yellow
+  //leds[0] = CRGB::Blue;
+  leds[1] = CRGB::Red;
+  leds[2] = CRGB::Green;
+  leds[3] = CRGB::White;
+  leds[4] = CRGB::Yellow;
+}
 void sendOKMessage(WiFiClient client) {
   client.print("HTTP/1.1 200 OK\r\n\nok");
 }
 void setBrightnessLevel(byte level) {
   FastLED.setBrightness(level);
+  FastLED.show();
 }
 void updateLEDs() {
   FastLED.show();
@@ -101,7 +110,12 @@ void setLEDColor(byte led, byte red, byte green, byte blue) {
   leds[led].r = red;
   leds[led].g = green;
   leds[led].b = blue;
-  updateLEDs(); //TODO: REMOVE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  Serial.print("Red: ");
+  Serial.println(red);
+  Serial.print("Blue:  ");
+  Serial.println(blue);
+  Serial.print("Green: ");
+  Serial.println(green);
 }
 
 void parseRequest(String request) {
@@ -113,7 +127,7 @@ void parseRequest(String request) {
   }
   //add brightness and custom functions here
 }
-
+byte getIntFromHexChar(char h);   ///////////IMPORTANT: index of is always returning the same id, firgure out how to - actually nvm
 void parseRequestForColors(String request) {
   byte COLOR_COUNT;
   byte RGBColors[3];
@@ -132,17 +146,27 @@ void parseRequestForColors(String request) {
     }
     setLEDColor(cnt, RGBColors[0], RGBColors[1], RGBColors[2]);
   }
+  updateLEDs();
 }
+
 void parseRequestForBrightness(String request) {
   byte brightness;
   int i;
-  char strbuf[2]={'B','R'};  // 4 = length of "ID=i"   
-  i = request.indexOf(strbuf)+START_OF_BRIGHTNESS_HEX;
+  i = request.indexOf("BR")+START_OF_BRIGHTNESS_HEX;
+  logchar("charat i : ", request.charAt(i));
   brightness = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
   setBrightnessLevel(brightness);
-  updateLEDs();
   
 }
+void logint(String a, int b){
+  Serial.print(a);
+  Serial.println(b);
+}
+void logchar(String a, char b){
+  Serial.print(a);
+  Serial.println(b);
+}
+
 byte getIntFromHexChar(char h) {
   switch (h) {
     case '0': 
