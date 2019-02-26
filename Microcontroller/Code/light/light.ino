@@ -6,16 +6,18 @@
 #define START_OF_COLOR_HEX 10
 #define START_OF_BRIGHTNESS_HEX 3
 #define LENGTH_OF_COLOR_HEX 6
-#define NUM_LEDS 6  //change to 7
-#define DATA_PIN_1 2 //15 for esp 13
+
+#define NUM_LEDS 7  
+#define DATA_PIN_1 12
 #define DATA_PIN_2 5
 #define DATA_PIN_3 4
 #define DATA_PIN_4 0
-#define DATA_PIN_5 14
-#define DATA_PIN_6 12
-#define DATA_PIN_7 13
+#define DATA_PIN_5 2
+#define DATA_PIN_6 14
+#define DATA_PIN_7 12
 #define CHIPSET WS2811
-CRGB leds[NUM_LEDS]; 
+
+CRGB leds[NUM_LEDS-1][1]; 
 
 const char* ssid = "StroudHome";
 const char* password = "Cloud2017";
@@ -76,25 +78,47 @@ void setupWiFi() {
   Serial.println(WiFi.localIP());
   server.begin();
 }
-void addLEDs() { //remove comments
-  //FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
+void addLEDs() { 
+  /*   
+   * this implementation is bad, (terrible)
+   * if you ever work on something like this make sure to take 
+   * advantage of the ws2811 addressablilty - I can't 
+   * change it now without making a new PCB
+   * 
+   * proper way to do it:
+   
+  FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds, NUM_LEDS); 
+  */
+
+
+
+  
+  FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds[0], 1);
+  FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds[1], 1);
+  FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds[2], 1);
+  FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds[3], 1); 
+  FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds[4], 1); 
+  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds[5], 2); 
+  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds[5], 2);
+  
   FastLED.setCorrection(0xFFB0F0);
-  for (int i = 0; i < NUM_LEDS; i++) {
-    leds[i] = CRGB::Red;
+  for (int i = 0; i < NUM_LEDS-1; i++) {
+    leds[i][0] = CRGB::Red;
   }
+  leds[5][1] = CRGB::Red;
 }
 void test() { //every led is yellow
-  //leds[0] = CRGB::Blue;
-  leds[1] = CRGB::Red;
-  leds[2] = CRGB::Green;
-  leds[3] = CRGB::White;
-  leds[4] = CRGB::Yellow;
+  leds[0][0] = CRGB::Blue;
+  leds[1][0] = CRGB::Red;
+  leds[2][0] = CRGB::Green;
+  leds[3][0] = CRGB::White;
+  leds[4][0] = CRGB::Yellow;
 }
 void sendOKMessage(WiFiClient client) {
   client.print("HTTP/1.1 200 OK\r\n\nok");
@@ -107,15 +131,15 @@ void updateLEDs() {
   FastLED.show();
 }
 void setLEDColor(byte led, byte red, byte green, byte blue) {
-  leds[led].r = red;
-  leds[led].g = green;
-  leds[led].b = blue;
-  Serial.print("Red: ");
-  Serial.println(red);
-  Serial.print("Blue:  ");
-  Serial.println(blue);
-  Serial.print("Green: ");
-  Serial.println(green);
+  if (led == NUM_LEDS) {
+    leds[5][1].r = red;
+    leds[5][1].g = green;
+    leds[5][1].b = blue;
+    return;
+  }
+  leds[led][0].r = red;
+  leds[led][0].g = green;
+  leds[led][0].b = blue;
 }
 
 void parseRequest(String request) {

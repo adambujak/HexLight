@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     int color = 3;                                                                        // another color buffer
     TextView textView;
     SeekBar brightnessBar;
-
+    String baseIP = "http://192.168.1.14/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         this.setRequestedOrientation(
@@ -187,10 +187,10 @@ public class MainActivity extends AppCompatActivity {
         return String.format("%02X", brightness & 0xFFL);
     }
     public void setBrightness(String brightness) {  // @params brightness in hexcode in string - full brightness = 255 = FF
-       sendStringRequest("http://192.168.1.21/BR="+brightness);
+       sendStringRequest(baseIP + "BR="+brightness);
     }
     public void setColors() {
-        String url ="http://192.168.1.21/";
+        String url = baseIP;
         for (int i = 0; i < hexagons.length; i++) {
             url += "ID=" + hexagons[i].id + "COLOR=" + getColorHexString(hexagons[i].getMaskColor());
             if (i != hexagons.length) url += "+";
