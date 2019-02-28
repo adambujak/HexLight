@@ -87,18 +87,15 @@ void addLEDs() {
    * 
    * proper way to do it:
    
-  FastLED.addLeds<CHIPSET, DATA_PIN_1>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds, NUM_LEDS);
-  FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds, NUM_LEDS); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds, NUM_LEDS); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds, NUM_LEDS); 
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
+  FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
   */
 
-
-
-  
   FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds[0], 1);
   FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds[1], 1);
   FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds[2], 1);
@@ -112,13 +109,6 @@ void addLEDs() {
     leds[i][0] = CRGB::Red;
   }
   leds[5][1] = CRGB::Red;
-}
-void test() { //every led is yellow
-  leds[0][0] = CRGB::Blue;
-  leds[1][0] = CRGB::Red;
-  leds[2][0] = CRGB::Green;
-  leds[3][0] = CRGB::White;
-  leds[4][0] = CRGB::Yellow;
 }
 void sendOKMessage(WiFiClient client) {
   client.print("HTTP/1.1 200 OK\r\n\nok");
@@ -149,9 +139,9 @@ void parseRequest(String request) {
   else if (request.indexOf("BR") != -1) {
      parseRequestForBrightness(request);
   }
-  //add brightness and custom functions here
+  //add custom functions here - like animations
 }
-byte getIntFromHexChar(char h);   ///////////IMPORTANT: index of is always returning the same id, firgure out how to - actually nvm
+byte getIntFromHexChar(char h); 
 void parseRequestForColors(String request) {
   byte COLOR_COUNT;
   byte RGBColors[3];
@@ -177,18 +167,9 @@ void parseRequestForBrightness(String request) {
   byte brightness;
   int i;
   i = request.indexOf("BR")+START_OF_BRIGHTNESS_HEX;
-  logchar("charat i : ", request.charAt(i));
   brightness = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
   setBrightnessLevel(brightness);
   
-}
-void logint(String a, int b){
-  Serial.print(a);
-  Serial.println(b);
-}
-void logchar(String a, char b){
-  Serial.print(a);
-  Serial.println(b);
 }
 
 byte getIntFromHexChar(char h) {

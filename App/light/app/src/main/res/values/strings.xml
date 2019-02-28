@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">light</string>
+    <string name="app_name">HexLight</string>
     <string name="title_activity_main">Color picker demo</string>
 
     <string name="pref_title">An example color</string>
