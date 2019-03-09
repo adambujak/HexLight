@@ -6,36 +6,18 @@
 #define START_OF_COLOR_HEX 10
 #define START_OF_BRIGHTNESS_HEX 3
 #define LENGTH_OF_COLOR_HEX 6
-
-#define NUM_LEDS 7  
-#define DATA_PIN_1 12
-#define DATA_PIN_2 5
-#define DATA_PIN_3 4
-#define DATA_PIN_4 0
-#define DATA_PIN_5 2
-#define DATA_PIN_6 14
-#define DATA_PIN_7 12
+#define NUM_LEDS 7  //change to 7
+#define DATA_PIN 2 
 #define CHIPSET WS2811
+CRGB leds[NUM_LEDS]; 
 
-CRGB leds[NUM_LEDS-1][2]; 
-
-const char* ssid = "StroudHome";
+const char* ssid = "StroudHome2";
 const char* password = "Cloud2017";
 
 boolean NEW_CLIENT = false;
 boolean READ_FROM_CLIENT = false;
 boolean ANIMATION_IN_PROGRESS = false;
-boolean PULSE = false; //pulse animation
-#define PULSE_TIME 20
-#define PULSE_INCREMENTS 2
-#define negative false
-#define positive true
-boolean PULSE_DIRECTION = positive; 
-byte PULSE_BRIGHTNESS = 255;
-boolean RANDOM_TWINKLE = false; //random twinkle animation
-#define TWINKLE_TIME 600
-int last_twinkle_time = millis();
-int last_pulse_time = millis();
+
 WiFiServer server(80);
 WiFiClient client;
 
@@ -44,6 +26,8 @@ void setup() {
   setupWiFi();
   addLEDs();
   setBrightnessLevel(255);
+  updateLEDs();
+  test();
   updateLEDs();
   NEW_CLIENT = true;
 }
@@ -69,47 +53,12 @@ void loop() {
       READ_FROM_CLIENT = false;
     }
   }
-  if (PULSE) {
-    pulse();
-  }
-  if (RANDOM_TWINKLE) {
-    random_twinkle();
-  }
-}
-void random_twinkle() {
-  if (millis() - last_twinkle_time > TWINKLE_TIME) {
-    last_twinkle_time = millis();
-    setLEDColor(random(0,7), random (0, 255), random(0,255), random(0,255));
-    updateLEDs();
-  }
-}
-void pulse()
-{
-  if (millis() - last_pulse_time > PULSE_TIME) {
-    last_pulse_time = millis();
-    if(PULSE_BRIGHTNESS < PULSE_INCREMENTS)
-    {
-      PULSE_DIRECTION = positive;
-    }
-    else if (PULSE_BRIGHTNESS > 255 - PULSE_INCREMENTS)
-    {
-      PULSE_DIRECTION = negative;
-    }
-    if (PULSE_DIRECTION == positive) {
-      PULSE_BRIGHTNESS += PULSE_INCREMENTS;
-    }
-    else {
-      PULSE_BRIGHTNESS -= PULSE_INCREMENTS;
-    }
-    setBrightnessLevel(PULSE_BRIGHTNESS);
-  }
-  
 }
 void setupWiFi() {
   WiFi.hostname("HexLight");
   WiFi.begin(ssid, password);
-  IPAddress ip(192,168,1,99);   
-  IPAddress gateway(192,168,1,1);   
+   IPAddress ip(192,168,0,22);   
+  IPAddress gateway(192,168,0,1);   
   IPAddress subnet(255,255,255,0);   
   WiFi.config(ip, gateway, subnet);
   while (WiFi.status() != WL_CONNECTED) {
@@ -121,15 +70,7 @@ void setupWiFi() {
   Serial.println(WiFi.localIP());
   server.begin();
 }
-void addLEDs() { 
-  /*   
-   * this implementation is bad, (terrible)
-   * if you ever work on something like this make sure to take 
-   * advantage of the ws2811 addressablilty - I can't 
-   * change it now without making a new PCB
-   * 
-   * proper way to do it:
-   
+void addLEDs() { //remove comments
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
@@ -137,21 +78,17 @@ void addLEDs() {
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS); 
-  */
-
-  FastLED.addLeds<CHIPSET, DATA_PIN_2>(leds[0], 1);
-  FastLED.addLeds<CHIPSET, DATA_PIN_3>(leds[1], 1);
-  FastLED.addLeds<CHIPSET, DATA_PIN_4>(leds[2], 1);
-  FastLED.addLeds<CHIPSET, DATA_PIN_5>(leds[3], 1); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_6>(leds[4], 1); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds[5], 2); 
-  FastLED.addLeds<CHIPSET, DATA_PIN_7>(leds[5], 2);
-  
   FastLED.setCorrection(0xFFB0F0);
-  for (int i = 0; i < NUM_LEDS-1; i++) {
-    leds[i][0] = CRGB::Red;
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::Red;
   }
-  leds[5][1] = CRGB::Blue;
+}
+void test() { //every led is yellow
+  //leds[0] = CRGB::Blue;
+  leds[1] = CRGB::Red;
+  leds[2] = CRGB::Green;
+  leds[3] = CRGB::White;
+  leds[4] = CRGB::Yellow;
 }
 void sendOKMessage(WiFiClient client) {
   client.print("HTTP/1.1 200 OK\r\n\nok");
@@ -164,15 +101,9 @@ void updateLEDs() {
   FastLED.show();
 }
 void setLEDColor(byte led, byte red, byte green, byte blue) {
-  if (led == NUM_LEDS-1) {
-    leds[5][1].r = red;
-    leds[5][1].g = green;
-    leds[5][1].b = blue;
-    return;
-  }
-  leds[led][0].r = red;
-  leds[led][0].g = green;
-  leds[led][0].b = blue;
+  leds[led].r = red;
+  leds[led].g = green;
+  leds[led].b = blue;
 }
 
 void parseRequest(String request) {
@@ -182,25 +113,9 @@ void parseRequest(String request) {
   else if (request.indexOf("BR") != -1) {
      parseRequestForBrightness(request);
   }
-  else if (request.indexOf("PU") != -1){
-    if (PULSE == true){
-      PULSE = false;
-    }
-    else {
-      PULSE = true;
-    }
-  }
-  else if (request.indexOf("TW") != -1){
-    if (RANDOM_TWINKLE == true){
-      RANDOM_TWINKLE = false;
-    }
-    else {
-      RANDOM_TWINKLE = true;
-    }
-  }
-  //add custom functions here - like animations
+  //add brightness and custom functions here
 }
-byte getIntFromHexChar(char h); 
+byte getIntFromHexChar(char h);   ///////////IMPORTANT: index of is always returning the same id, firgure out how to - actually nvm
 void parseRequestForColors(String request) {
   byte COLOR_COUNT;
   byte RGBColors[3];
@@ -228,7 +143,6 @@ void parseRequestForBrightness(String request) {
   i = request.indexOf("BR")+START_OF_BRIGHTNESS_HEX;
   brightness = 16*getIntFromHexChar(request.charAt(i)) + getIntFromHexChar(request.charAt(i+1));
   setBrightnessLevel(brightness);
-  
 }
 
 byte getIntFromHexChar(char h) {
