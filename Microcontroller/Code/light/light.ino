@@ -16,7 +16,21 @@ const char* password = "Cloud2017";
 
 boolean NEW_CLIENT = false;
 boolean READ_FROM_CLIENT = false;
-boolean ANIMATION_IN_PROGRESS = false;
+
+
+boolean PULSE = false; //pulse animation
+#define PULSE_TIME 20
+#define PULSE_INCREMENTS 2
+#define negative false
+#define positive true
+boolean PULSE_DIRECTION = positive; 
+byte PULSE_BRIGHTNESS = 255;
+int last_pulse_time = millis();
+
+boolean RANDOM_TWINKLE = false; //random twinkle animation
+#define TWINKLE_TIME 600
+int last_twinkle_time = millis();
+
 
 WiFiServer server(80);
 WiFiClient client;
@@ -53,11 +67,17 @@ void loop() {
       READ_FROM_CLIENT = false;
     }
   }
+  if (PULSE) {
+    pulse();
+  }
+  if (RANDOM_TWINKLE) {
+    random_twinkle();
+  }
 }
 void setupWiFi() {
   WiFi.hostname("HexLight");
   WiFi.begin(ssid, password);
-   IPAddress ip(192,168,0,22);   
+  IPAddress ip(192,168,0,22);   
   IPAddress gateway(192,168,0,1);   
   IPAddress subnet(255,255,255,0);   
   WiFi.config(ip, gateway, subnet);
@@ -66,9 +86,37 @@ void setupWiFi() {
     Serial.print(".");
   }
   Serial.println("WiFi connected");
- 
   Serial.println(WiFi.localIP());
   server.begin();
+}
+void random_twinkle() {
+  if (millis() - last_twinkle_time > TWINKLE_TIME) {
+    last_twinkle_time = millis();
+    setLEDColor(random(0,7), random (0, 255), random(0,255), random(0,255));
+    updateLEDs();
+  }
+}
+void pulse()
+{
+  if (millis() - last_pulse_time > PULSE_TIME) {
+    last_pulse_time = millis();
+    if(PULSE_BRIGHTNESS < PULSE_INCREMENTS)
+    {
+      PULSE_DIRECTION = positive;
+    }
+    else if (PULSE_BRIGHTNESS > 255 - PULSE_INCREMENTS)
+    {
+      PULSE_DIRECTION = negative;
+    }
+    if (PULSE_DIRECTION == positive) {
+      PULSE_BRIGHTNESS += PULSE_INCREMENTS;
+    }
+    else {
+      PULSE_BRIGHTNESS -= PULSE_INCREMENTS;
+    }
+    setBrightnessLevel(PULSE_BRIGHTNESS);
+  }
+  
 }
 void addLEDs() { //remove comments
   FastLED.addLeds<CHIPSET, DATA_PIN>(leds, NUM_LEDS);
