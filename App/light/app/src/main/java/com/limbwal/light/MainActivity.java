@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     WifiP2pManager.Channel channel;
     WifiP2pManager manager;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
-
+    int[] hexagonModifierArray = {5,6,0,1,3,2,4};  //this is for setting the correct led on the actual thing.
 
 
     private final IntentFilter intentFilter = new IntentFilter();
@@ -134,11 +134,10 @@ public class MainActivity extends AppCompatActivity {
             String buttonID = "hexView" + i;
             int resID = getResources().getIdentifier(buttonID, "id", getPackageName());
             hexagons[i] = findViewById(resID);
-            hexagons[i].id = i;
+            hexagons[i].id = hexagonModifierArray[i] ;
             changeBackgroundColor(Color.rgb(0, 192, 255), i); //00c0ff - aqua
         }
         for (int i = 0; i < hexagons.length; i++) {
-            hexagons[i].id = i;
             final int foo = i;
             hexagons[i].setOnTouchListener(new View.OnTouchListener() {
                 @Override
