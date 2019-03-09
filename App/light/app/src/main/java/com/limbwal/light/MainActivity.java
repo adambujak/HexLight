@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     int color = 3;                                                                        // another color buffer
     TextView textView;
     SeekBar brightnessBar;
-    String baseIP = "http://192.168.1.14/";
+    String baseIP = "http://192.168.1.99/";
     WifiP2pManager.Channel channel;
     WifiP2pManager manager;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();

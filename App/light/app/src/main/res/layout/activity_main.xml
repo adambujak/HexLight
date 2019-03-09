@@ -18,67 +18,82 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:id="@+id/buffer2"
-        android:layout_marginRight="@dimen/hexDimen"
-        android:layout_alignRight="@id/centerBuffer"
+
         />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView0"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_marginLeft="@dimen/hexDimenQuarter"
-        android:layout_alignLeft="@id/buffer2"
-        android:layout_centerVertical="true"/>
+        android:layout_alignStart="@id/hexView6"
+        android:layout_alignTop="@id/hexView6"
+        android:layout_marginTop="@dimen/hexDimenSpace"
+        />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView1"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignRight="@id/hexView2"
-        android:layout_marginTop="@dimen/hexDimenTriangleHeight"
-        android:layout_alignTop="@id/hexView0"/>
+        android:layout_alignTop="@id/hexView5"
+        android:layout_alignEnd="@id/hexView2"
+        android:layout_marginEnd="@dimen/hexDimenThreeQuarter"
+         />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView2"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_marginRight="@dimen/hexDimenThreeQuarter"
-        android:layout_alignRight="@id/hexView0"
-        android:layout_marginBottom="@dimen/hexDimenTriangleHeight"
-        android:layout_alignBottom="@id/hexView0"/>
+        android:layout_marginTop="@dimen/hexDimenSpace"
+        android:layout_alignTop="@id/hexView3"
+        android:layout_alignEnd="@id/hexView3"
+        />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView3"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignLeft="@id/hexView0"
-        android:layout_marginBottom="@dimen/hexDimenTriangleHeight2x"
-        android:layout_alignBottom="@id/hexView0"/>
+        android:layout_marginBottom="@dimen/hexDimenHalf"
+        android:layout_alignBottom="@id/hexView5"
+        android:layout_alignEnd="@id/hexView4"
+        android:layout_marginEnd="@dimen/hexDimenThreeQuarter"
+        />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView4"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignLeft="@id/hexView3"
-        android:layout_marginLeft="@dimen/hexDimenThreeQuarter"
-        android:layout_alignTop="@id/hexView1"/>
+        android:layout_alignBottom="@id/hexView5"
+        android:layout_alignLeft="@id/hexView5"
+        android:layout_marginBottom="@dimen/hexDimenSpace"
+       />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView5"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignLeft="@id/hexView3"
-        android:layout_marginLeft="@dimen/hexDimenThreeQuarter"
-        android:layout_alignTop="@id/hexView2"/>
+
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="163dp" />
+
     <com.limbwal.light.Hexagon
         android:id="@+id/hexView6"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignLeft="@id/hexView5"
-        android:layout_marginLeft="@dimen/hexDimenThreeQuarter"
-        android:layout_alignTop="@id/hexView0"/>
+        android:layout_alignBottom="@id/hexView5"
+        android:layout_marginBottom="@dimen/hexDimenTriangleHeight"
+        android:layout_alignStart="@id/hexView5"
+        android:layout_marginStart="@dimen/hexDimenThreeQuarter"
+        />
+
     <Button
+        android:id="@+id/setColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/setColor"
-        android:text="Set Color"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
-        android:layout_alignTop="@id/hexView4"/>
+        android:layout_alignTop="@id/hexView2"
+        android:layout_marginTop="200sp"
+        android:text="Set Color" />
 
     <TextView
         android:id="@+id/textView"
