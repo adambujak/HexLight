@@ -17,7 +17,7 @@
 #define DATA_PIN_7 12
 #define CHIPSET WS2811
 
-CRGB leds[NUM_LEDS-1][1]; 
+CRGB leds[NUM_LEDS-1][2]; 
 
 const char* ssid = "StroudHome";
 const char* password = "Cloud2017";
@@ -25,7 +25,17 @@ const char* password = "Cloud2017";
 boolean NEW_CLIENT = false;
 boolean READ_FROM_CLIENT = false;
 boolean ANIMATION_IN_PROGRESS = false;
-
+boolean PULSE = false; //pulse animation
+#define PULSE_TIME 20
+#define PULSE_INCREMENTS 2
+#define negative false
+#define positive true
+boolean PULSE_DIRECTION = positive; 
+byte PULSE_BRIGHTNESS = 255;
+boolean RANDOM_TWINKLE = false; //random twinkle animation
+#define TWINKLE_TIME 600
+int last_twinkle_time = millis();
+int last_pulse_time = millis();
 WiFiServer server(80);
 WiFiClient client;
 
@@ -34,8 +44,6 @@ void setup() {
   setupWiFi();
   addLEDs();
   setBrightnessLevel(255);
-  updateLEDs();
-  test();
   updateLEDs();
   NEW_CLIENT = true;
 }
@@ -61,20 +69,55 @@ void loop() {
       READ_FROM_CLIENT = false;
     }
   }
+  if (PULSE) {
+    pulse();
+  }
+  if (RANDOM_TWINKLE) {
+    random_twinkle();
+  }
 }
-
+void random_twinkle() {
+  if (millis() - last_twinkle_time > TWINKLE_TIME) {
+    last_twinkle_time = millis();
+    setLEDColor(random(0,7), random (0, 255), random(0,255), random(0,255));
+    updateLEDs();
+  }
+}
+void pulse()
+{
+  if (millis() - last_pulse_time > PULSE_TIME) {
+    last_pulse_time = millis();
+    if(PULSE_BRIGHTNESS < PULSE_INCREMENTS)
+    {
+      PULSE_DIRECTION = positive;
+    }
+    else if (PULSE_BRIGHTNESS > 255 - PULSE_INCREMENTS)
+    {
+      PULSE_DIRECTION = negative;
+    }
+    if (PULSE_DIRECTION == positive) {
+      PULSE_BRIGHTNESS += PULSE_INCREMENTS;
+    }
+    else {
+      PULSE_BRIGHTNESS -= PULSE_INCREMENTS;
+    }
+    setBrightnessLevel(PULSE_BRIGHTNESS);
+  }
+  
+}
 void setupWiFi() {
   WiFi.hostname("HexLight");
   WiFi.begin(ssid, password);
+  IPAddress ip(192,168,1,99);   
+  IPAddress gateway(192,168,1,1);   
+  IPAddress subnet(255,255,255,0);   
+  WiFi.config(ip, gateway, subnet);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("WiFi connected");
-  /*IPAddress ip(192,168,1,22);   
-  IPAddress gateway(192,168,1,1);   
-  IPAddress subnet(255,255,255,0);   
-  WiFi.config(ip, gateway, subnet);*/
+ 
   Serial.println(WiFi.localIP());
   server.begin();
 }
@@ -108,7 +151,7 @@ void addLEDs() {
   for (int i = 0; i < NUM_LEDS-1; i++) {
     leds[i][0] = CRGB::Red;
   }
-  leds[5][1] = CRGB::Red;
+  leds[5][1] = CRGB::Blue;
 }
 void sendOKMessage(WiFiClient client) {
   client.print("HTTP/1.1 200 OK\r\n\nok");
@@ -121,7 +164,7 @@ void updateLEDs() {
   FastLED.show();
 }
 void setLEDColor(byte led, byte red, byte green, byte blue) {
-  if (led == NUM_LEDS) {
+  if (led == NUM_LEDS-1) {
     leds[5][1].r = red;
     leds[5][1].g = green;
     leds[5][1].b = blue;
@@ -138,6 +181,22 @@ void parseRequest(String request) {
   }
   else if (request.indexOf("BR") != -1) {
      parseRequestForBrightness(request);
+  }
+  else if (request.indexOf("PU") != -1){
+    if (PULSE == true){
+      PULSE = false;
+    }
+    else {
+      PULSE = true;
+    }
+  }
+  else if (request.indexOf("TW") != -1){
+    if (RANDOM_TWINKLE == true){
+      RANDOM_TWINKLE = false;
+    }
+    else {
+      RANDOM_TWINKLE = true;
+    }
   }
   //add custom functions here - like animations
 }
