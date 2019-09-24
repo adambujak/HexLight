@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="hexDimen">100sp</dimen>
-    <dimen name="hexDimenSpace">92sp</dimen>
-    <dimen name="hexDimenHalf">50sp</dimen>
+    <dimen name="hexDimenSpace">86sp</dimen>
+    <dimen name="hexDimenVerticalSpace">85sp</dimen>
+    <dimen name="hexDimenHalf">43sp</dimen>
     <dimen name="hexDimenHalfSpace">40sp</dimen>
     <dimen name="hexDimenTriangleHeight">44sp</dimen>
     <dimen name="hexDimenQuarter">25sp</dimen>

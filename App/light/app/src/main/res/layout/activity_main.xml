@@ -26,8 +26,7 @@
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
         android:layout_alignStart="@id/hexView6"
-        android:layout_alignTop="@id/hexView6"
-        android:layout_marginTop="@dimen/hexDimenSpace"
+        android:layout_alignTop="@id/hexView2"
         />
 
     <com.limbwal.light.Hexagon
@@ -43,8 +42,8 @@
         android:id="@+id/hexView2"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_marginTop="@dimen/hexDimenSpace"
-        android:layout_alignTop="@id/hexView3"
+        android:layout_marginTop="@dimen/hexDimenHalf"
+        android:layout_alignTop="@id/hexView5"
         android:layout_alignEnd="@id/hexView3"
         />
 
@@ -80,8 +79,7 @@
         android:id="@+id/hexView6"
         android:layout_width="@dimen/hexDimen"
         android:layout_height="@dimen/hexDimen"
-        android:layout_alignBottom="@id/hexView5"
-        android:layout_marginBottom="@dimen/hexDimenTriangleHeight"
+        android:layout_alignBottom="@id/hexView3"
         android:layout_alignStart="@id/hexView5"
         android:layout_marginStart="@dimen/hexDimenThreeQuarter"
         />
