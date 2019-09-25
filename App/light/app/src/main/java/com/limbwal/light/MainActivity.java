@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     int[] hexagonModifierArray = {5,6,0,1,3,2,4};  //this is for setting the correct led on the actual thing.
 
 
+    Button ani;
+
     private final IntentFilter intentFilter = new IntentFilter();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +112,17 @@ public class MainActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(this,R.color.colorPrimaryDark));
 
         textView = findViewById(R.id.textView);
+
+        Button ani = findViewById(R.id.ani);
+        ani.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivity.this, animations.class);
+                //myIntent.putExtra("key", value); //Optional parameters
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
         brightnessBar = findViewById(R.id.brightnessBar);
         brightnessBar.getProgressDrawable().setColorFilter(Color.rgb(0, 192, 255), PorterDuff.Mode.SRC_IN);
         brightnessBar.getThumb().setColorFilter(Color.rgb(0, 192, 255), PorterDuff.Mode.SRC_IN);
