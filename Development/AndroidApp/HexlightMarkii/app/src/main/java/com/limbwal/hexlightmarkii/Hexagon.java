@@ -1,4 +1,4 @@
-package com.limbwal.light;
+package com.limbwal.hexlightmarkii;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
