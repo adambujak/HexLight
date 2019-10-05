@@ -48,12 +48,21 @@ public class Hexagon extends View {
     }
     public void setRadius(float r) {
         this.radius = r;
+        this.width = (r+10)*2;
+        this.height = this.width;
+    }
+    public void updatePath() {
+        calculatePath();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int x = (int) event.getX();
         int y = (int) event.getY();
+        if (!(inHexagon(x, y))) return false;
+//        switch (event.getAction()) {
+//
+//        }
         return inHexagon(x, y);    // Returns if touch was inside hexagon or not
     }
     public boolean inHexagon(int x, int y) {  //returns if touch was inside hexagon or not.
@@ -97,23 +106,22 @@ public class Hexagon extends View {
     }
 
     private void calculatePath() {
-        float triangleHeight = (float) (Math.sqrt(3) * radius / 2);
-        hexagonPath = new Path();
+        float triangleHeight = (float) (Math.sqrt(3) * this.radius / 2);
+        this.hexagonPath = new Path();
         float centerX = width/2;
         float centerY = height/2;
-        hexagonPath.moveTo(centerX, centerY + triangleHeight);
-        hexagonPath.lineTo(centerX + radius/2, centerY+triangleHeight);
-        hexagonPath.lineTo(centerX + radius, centerY);
-        hexagonPath.lineTo(centerX + radius/2, centerY-triangleHeight);
-        hexagonPath.lineTo(centerX - radius/2, centerY-triangleHeight);
-        hexagonPath.lineTo(centerX - radius, centerY);
-        hexagonPath.lineTo(centerX - radius/2, centerY+triangleHeight);
+        this.hexagonPath.moveTo(centerX, centerY + triangleHeight);
+        this.hexagonPath.lineTo(centerX + radius/2, centerY+triangleHeight);
+        this.hexagonPath.lineTo(centerX + radius, centerY);
+        this.hexagonPath.lineTo(centerX + radius/2, centerY-triangleHeight);
+        this.hexagonPath.lineTo(centerX - radius/2, centerY-triangleHeight);
+        this.hexagonPath.lineTo(centerX - radius, centerY);
+        this.hexagonPath.lineTo(centerX - radius/2, centerY+triangleHeight);
         invalidate();
     }
     @Override
     public void onDraw(Canvas c){
         super.onDraw(c);
-
         c.clipPath(hexagonPath, Region.Op.INTERSECT);
         c.drawColor(maskColor);
         c.save();
@@ -123,9 +131,9 @@ public class Hexagon extends View {
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        width = MeasureSpec.getSize(widthMeasureSpec);
-        height =  MeasureSpec.getSize(heightMeasureSpec);
-        radius = height / 2 - 10;
-        calculatePath();
+      //  width = MeasureSpec.getSize(widthMeasureSpec);
+//        height =  MeasureSpec.getSize(heightMeasureSpec);
+//        radius = height / 2 - 10;
+//        calculatePath();
     }
 }
